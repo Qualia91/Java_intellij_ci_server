@@ -1,0 +1,4 @@
+put this in repos hgdr you want linked up, and make sure ci_start.bat is on path
+
+[hooks]
+incoming = ci_start.bat
