@@ -47,14 +47,16 @@ for module_name, deps in pairs(modules) do
   depth_grouped_modules[depth][#depth_grouped_modules[depth] + 1] = module_name
 end
 
+-- create date time index for files
+local date = os.date("%Y/%m/%d"):gsub("/", "_")
+local time = os.time()
+
+local date_time_index = time .. "_" .. date;
+
+-- cleanup
 utils.deletedir('lib')
 lfs.mkdir("lib")
-
 utils.deletedir("out")
-
--- move third party libs to lib folder
--- os.execute("copy ./third_party/hamcrest-core-2.2.jar ./lib/hamcrest-core-2.2.jar")
--- os.execute("copy ./third_party/junit-4.12.jar a")
 
 -- build
 for depth, module_names_in_depth in ipairs(depth_grouped_modules) do
@@ -147,10 +149,7 @@ for depth, module_names_in_depth in ipairs(depth_grouped_modules) do
 
 end
 
-local date = os.date("%Y/%m/%d"):gsub("/", "_")
-local time = os.time()
-
-local test_output = io.open("test_outputs/" .. time .. "_" .. date .. "_test_output.html", "w")
+local test_output = io.open("test_outputs/" .. date_time_index .. "_test_output.html", "w")
 io.output(test_output)
 
 io.write("<h1>Test Results at " .. os.date("%Y/%m/%d %X") .. "</h1>")
@@ -164,6 +163,7 @@ for mod_name, class_tests in pairs(test_result) do
     io.write("<h3>" .. class_name .. "</h3>")
 
     io.write("<p>" .. test_result .. "</p>")
+
   end
 
   io.write("</details>")
@@ -171,5 +171,50 @@ for mod_name, class_tests in pairs(test_result) do
 end
 
 io.close(test_output)
+
+test_output_files = utils.get_test_output_list("test_outputs/")
+
+local index = io.open("test_outputs/index.html", "w")
+
+io.output(index)
+
+local html_header = [[
+
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+
+</body>
+</html>
+
+]]
+
+io.write(html_header)
+
+io.write("<h1>Test results index page</h1><ol>\n")
+
+for i,test_output_file_names in ipairs(utils.reverse_list(test_output_files)) do
+
+  local path = lfs.currentdir() .. "/test_outputs/" .. test_output_file_names
+
+  local dot_col = "red_dot"
+
+  if utils.has_passed(utils.lines_from("test_outputs/" .. test_output_file_names)) then
+    dot_col = "green_dot"
+  end
+
+  io.write("<li><a href=\"file:///" .. path:gsub("/" , "\\") .. "\">" ..  test_output_file_names .. "</a><span class=\"" .. dot_col .. "\"></span>\n</li>\n")
+
+end
+
+io.write("</ol>\n")
+io.write("</body>\n")
+io.write("</html>\n")
+
+io.close(index)
 
 utils.deletedir('out')

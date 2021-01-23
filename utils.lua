@@ -50,6 +50,20 @@ function utils.get_file_list(dir, files, test_run)
 
 end
 
+function utils.get_test_output_list(dir) 
+
+  local files = {}
+
+  for file in lfs.dir(dir) do
+      if file ~= "." and file ~= ".." and file ~= "index.html" and utils.ends_with(file, ".html") then 
+        files[#files + 1] = file
+    end 
+  end
+
+  return files
+
+end
+
 -- get modules from <BUILD_PORJ>/.idea/modules.xml
 -- see if the file exists
 function utils.file_exists(file)
@@ -103,6 +117,17 @@ function utils.dependant_module_names(lines)
   return module_names
 end
 
+-- did test pass, takes in lines from test output
+function utils.has_passed(lines)
+  for _,v in pairs(lines) do
+
+    if string.find(v, "FAILURES!!!") then
+      return false
+    end
+  end
+  return true
+end
+
 function utils.split(inputstr, sep)
         if sep == nil then
                 sep = "%s"
@@ -137,5 +162,12 @@ function utils.calc_depth(modules, module_name, depth)
 
 end
 
+function utils.reverse_list(list)
+  rev = {}
+  for i=#list, 1, -1 do
+    rev[#rev+1] = list[i]
+  end
+  return rev
+end
 
 return utils

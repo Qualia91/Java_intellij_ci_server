@@ -1,4 +1,1 @@
-
-cd ../ci/
-
-start run.bat
+WMIC process call create "D:/Software/Programming/projects/Java/commandLineBuildTest/ci/run.bat" > nul 2>&1
