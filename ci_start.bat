@@ -1,1 +1,2 @@
-WMIC process call create "D:/Software/Programming/projects/Java/commandLineBuildTest/ci/run.bat" > nul 2>&1
+pushd %~dp0
+echo a > run_requests/run.txt

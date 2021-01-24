@@ -178,22 +178,80 @@ local index = io.open("test_outputs/index.html", "w")
 
 io.output(index)
 
-local html_header = [[
+local begining = [[
+
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
+<meta charset="utf-8" />
+<title>CAT CI SERVER!</title>
 
+<link rel="stylesheet" href="main.css"/>
+
+</head>
+
+<script>
+function RunExe(){
+    var shell = new ActiveXObject("WScript.Shell");
+    var path = '"file:///run.bat"';
+    shell.run(path,1,false);
+}
+</script>
+
+<body id="index" class="home">
+
+<header id="banner" class="body">
+  <h1 id="demo" >CAT CI SERVER</h1>
+
+  <nav><ul>
+    <li class="active"><a href="index.html">Overview</a></li>
+    <li><a href="proj_info.html">Project Information</a></li>
+    <li><a href="help.html">Help</a></li>
+  </ul></nav>
+
+</header>
+
+<aside id="featured" class="body">
+  <article>
+
+    <hgroup>
+      <input id="clickMe" type="button" value="clickme" onclick="RunExe()" />
+    </hgroup>
+
+  </article>
+</aside>
+
+<section id="extras" class="body">
+  <div class="blogroll">
+    <h2>Test Cases</h2>
+    <ul>
+
+    ]]
+
+
+local end_file = [[
+    </ul>
+  </div>
+
+</section>
+
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+
+    <span class="primary">
+      <strong>CAT CI SERVER</strong>
+    </span>
+
+  </address>
+</footer>
 
 </body>
 </html>
 
 ]]
 
-io.write(html_header)
+io.write(begining)
 
 io.write("<h1>Test results index page</h1><ol>\n")
 
@@ -207,13 +265,12 @@ for i,test_output_file_names in ipairs(utils.reverse_list(test_output_files)) do
     dot_col = "green_dot"
   end
 
-  io.write("<li><a href=\"file:///" .. path:gsub("/" , "\\") .. "\">" ..  test_output_file_names .. "</a><span class=\"" .. dot_col .. "\"></span>\n</li>\n")
+  io.write("<li><a href=\"" .. test_output_file_names .. "\" rel=\"external\"><span class=\"" .. dot_col .. "\"></span>  " .. test_output_file_names:gsub(".html", "") .. "</a></li>\n")
 
 end
 
-io.write("</ol>\n")
-io.write("</body>\n")
-io.write("</html>\n")
+
+io.write(end_file)
 
 io.close(index)
 

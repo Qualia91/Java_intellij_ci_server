@@ -55,7 +55,7 @@ function utils.get_test_output_list(dir)
   local files = {}
 
   for file in lfs.dir(dir) do
-      if file ~= "." and file ~= ".." and file ~= "index.html" and utils.ends_with(file, ".html") then 
+      if file ~= "." and file ~= ".." and file ~= "index.html" and file ~= "help.html" and file ~= "proj_info.html" and utils.ends_with(file, ".html") then 
         files[#files + 1] = file
     end 
   end

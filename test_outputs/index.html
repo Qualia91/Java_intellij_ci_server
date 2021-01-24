@@ -1,40 +1,68 @@
 
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<link rel="stylesheet" href="style.css">
+<meta charset="utf-8" />
+<title>CAT CI SERVER!</title>
+
+<link rel="stylesheet" href="main.css"/>
+
 </head>
-<body>
 
+<script>
+function RunExe(){
+    var shell = new ActiveXObject("WScript.Shell");
+    var path = '"file:///run.bat"';
+    shell.run(path,1,false);
+}
+</script>
+
+<body id="index" class="home">
+
+<header id="banner" class="body">
+  <h1 id="demo" >CAT CI SERVER</h1>
+
+  <nav><ul>
+    <li class="active"><a href="index.html">Overview</a></li>
+    <li><a href="proj_info.html">Project Information</a></li>
+    <li><a href="help.html">Help</a></li>
+  </ul></nav>
+
+</header>
+
+<aside id="featured" class="body">
+  <article>
+
+    <hgroup>
+      <input id="clickMe" type="button" value="clickme" onclick="RunExe()" />
+    </hgroup>
+
+  </article>
+</aside>
+
+<section id="extras" class="body">
+  <div class="blogroll">
+    <h2>Test Cases</h2>
+    <ul>
+
+    <h1>Test results index page</h1><ol>
+<li><a href="1611480302_2021_01_24_test_output.html" rel="external"><span class="green_dot"></span>  1611480302_2021_01_24_test_output</a></li>
+    </ul>
+  </div>
+
+</section>
+
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+
+    <span class="primary">
+      <strong>CAT CI SERVER</strong>
+    </span>
+
+  </address>
+</footer>
 
 </body>
 </html>
 
-<h1>Test results index page</h1><ol>
-<li><a href="file:///D:\Software\Programming\projects\Java\commandLineBuildTest\ci\test_outputs\1611425101_2021_01_23_test_output.html">1611425101_2021_01_23_test_output.html</a><span class="green_dot"></span>
-</li>
-<li><a href="file:///D:\Software\Programming\projects\Java\commandLineBuildTest\ci\test_outputs\1611425048_2021_01_23_test_output.html">1611425048_2021_01_23_test_output.html</a><span class="red_dot"></span>
-</li>
-<li><a href="file:///D:\Software\Programming\projects\Java\commandLineBuildTest\ci\test_outputs\1611424936_2021_01_23_test_output.html">1611424936_2021_01_23_test_output.html</a><span class="red_dot"></span>
-</li>
-<li><a href="file:///D:\Software\Programming\projects\Java\commandLineBuildTest\ci\test_outputs\1611424924_2021_01_23_test_output.html">1611424924_2021_01_23_test_output.html</a><span class="red_dot"></span>
-</li>
-<li><a href="file:///D:\Software\Programming\projects\Java\commandLineBuildTest\ci\test_outputs\1611424891_2021_01_23_test_output.html">1611424891_2021_01_23_test_output.html</a><span class="red_dot"></span>
-</li>
-<li><a href="file:///D:\Software\Programming\projects\Java\commandLineBuildTest\ci\test_outputs\1611424831_2021_01_23_test_output.html">1611424831_2021_01_23_test_output.html</a><span class="red_dot"></span>
-</li>
-<li><a href="file:///D:\Software\Programming\projects\Java\commandLineBuildTest\ci\test_outputs\1611424805_2021_01_23_test_output.html">1611424805_2021_01_23_test_output.html</a><span class="red_dot"></span>
-</li>
-<li><a href="file:///D:\Software\Programming\projects\Java\commandLineBuildTest\ci\test_outputs\1611424776_2021_01_23_test_output.html">1611424776_2021_01_23_test_output.html</a><span class="red_dot"></span>
-</li>
-<li><a href="file:///D:\Software\Programming\projects\Java\commandLineBuildTest\ci\test_outputs\1611424518_2021_01_23_test_output.html">1611424518_2021_01_23_test_output.html</a><span class="red_dot"></span>
-</li>
-<li><a href="file:///D:\Software\Programming\projects\Java\commandLineBuildTest\ci\test_outputs\1611424494_2021_01_23_test_output.html">1611424494_2021_01_23_test_output.html</a><span class="green_dot"></span>
-</li>
-<li><a href="file:///D:\Software\Programming\projects\Java\commandLineBuildTest\ci\test_outputs\1611424411_2021_01_23_test_output.html">1611424411_2021_01_23_test_output.html</a><span class="red_dot"></span>
-</li>
-<li><a href="file:///D:\Software\Programming\projects\Java\commandLineBuildTest\ci\test_outputs\1611424352_2021_01_23_test_output.html">1611424352_2021_01_23_test_output.html</a><span class="red_dot"></span>
-</li>
-</ol>
-</body>
-</html>
