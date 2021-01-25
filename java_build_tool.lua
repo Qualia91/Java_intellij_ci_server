@@ -48,7 +48,7 @@ end
 
 -- create date time index for files
 local date = os.date("%Y_%m_%d")
-local time = os.time("%H_%M_%S")
+local time = os.date("%H_%M_%S")
 
 local date_time_index = date .. "_" .. time;
 
@@ -77,7 +77,8 @@ for depth, module_names_in_depth in pairs(depth_grouped_modules) do
   	local compile_string = "javac --module-path lib;third_party -d " .. mod_name .. "/out "
 
     -- create file with list of sources to get around cmd character limit
-    local sources_file = io.open("sources.txt", w)
+    local sources_file = io.open("sources.txt", "w")
+    io.output(sources_file)
   	for index, file in pairs(files) do
 
       -- check its a jar file
@@ -92,7 +93,7 @@ for depth, module_names_in_depth in pairs(depth_grouped_modules) do
     local t = os.execute(compile_string .. " @sources.txt")
 
     --now copy over none java files
-    for not index, file in pairs(files) do
+    for index, file in pairs(files) do
 
       if not utils.ends_with(file, ".java") then
 
@@ -115,12 +116,12 @@ for depth, module_names_in_depth in pairs(depth_grouped_modules) do
 end
 
 -- run main
-print("----- Running " .. main_class)
 utils.deletedir("out")
 lfs.mkdir("out")
 
 -- command to run if need be
 if main_class then
+  print("----- Running " .. main_class) 
   local t = os.execute("java --module-path lib;third_party -m " .. main_class)
 end
 
@@ -152,7 +153,8 @@ for depth, module_names_in_depth in pairs(depth_grouped_modules) do
     end
 
     -- create file with list of sources to get around cmd character limit
-    local sources_file = io.open("sources.txt", w)
+    local sources_file = io.open("sources.txt", "w")
+    io.output(sources_file)
     for index, file in pairs(test_files) do
 
       -- check its a jar file
@@ -161,13 +163,13 @@ for depth, module_names_in_depth in pairs(depth_grouped_modules) do
       end
 
     end
-    io.close(test_compile_string .. " @sources.txt")
+    io.close(sources_file)
       
     -- compile
-    local t = os.execute(compile_string .. " @sources.txt")
+    local t = os.execute(test_compile_string .. " @sources.txt")
 
     --now copy over none java files
-    for not index, file in pairs(test_files) do
+    for index, file in pairs(test_files) do
 
 
       if not utils.ends_with(file, ".java") then
