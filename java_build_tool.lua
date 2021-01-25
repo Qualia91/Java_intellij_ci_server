@@ -1,14 +1,13 @@
 local lfs = require "lfs"
 local utils = require "utils"
 
+assert(arg[1])
 
 local directory = "."
-local build_project = "com.hello"
-
-assert(arg[0])
+local build_project = arg[1]
 
 -- iterate over modules and get all .java files
-local main_class = arg[0] -- eg "com.hello_client/com.hello_client.HelloWorldClient"
+local main_class = arg[2]
 
 -- tests the functions above
 local file = build_project .. '/.idea/modules.xml'
@@ -48,18 +47,19 @@ for module_name, deps in pairs(modules) do
 end
 
 -- create date time index for files
-local date = os.date("%Y/%m/%d"):gsub("/", "_")
-local time = os.time()
+local date = os.date("%Y_%m_%d")
+local time = os.time("%H_%M_%S")
 
-local date_time_index = time .. "_" .. date;
+local date_time_index = date .. "_" .. time;
 
 -- cleanup
 utils.deletedir('lib')
 lfs.mkdir("lib")
 utils.deletedir("out")
+lfs.mkdir("out")
 
 -- build
-for depth, module_names_in_depth in ipairs(depth_grouped_modules) do
+for depth, module_names_in_depth in pairs(depth_grouped_modules) do
 
   for _, mod_name in pairs(module_names_in_depth) do
 
@@ -71,19 +71,42 @@ for depth, module_names_in_depth in ipairs(depth_grouped_modules) do
 
   	local files = {}
 
-  	files = utils.get_file_list(directory .. "/" .. mod_name, files, false)
+  	files = utils.get_file_list(directory .. "/" .. mod_name .. "/src", files)
 
     -- compile to local place for jar creation
   	local compile_string = "javac --module-path lib;third_party -d " .. mod_name .. "/out "
 
+    -- create file with list of sources to get around cmd character limit
+    local sources_file = io.open("sources.txt", w)
   	for index, file in pairs(files) do
 
-  		compile_string = compile_string .. string.sub(file, 3) .. " "
+      -- check its a jar file
+      if utils.ends_with(file, ".java") then
+    		io.write(string.sub(file, 3) .. " ")
+      end
 
   	end
+    io.close(sources_file)
   		
     -- compile
-    local t = os.execute(compile_string)
+    local t = os.execute(compile_string .. " @sources.txt")
+
+    --now copy over none java files
+    for not index, file in pairs(files) do
+
+      if not utils.ends_with(file, ".java") then
+
+        local start_file = file:sub(3)
+        local end_file = mod_name .. "/out/" .. string.sub(file, string.len("/" .. directory .. "/" .. mod_name .. "/src/"))
+
+        -- mkdir just incase it doesnt exist
+        os.execute("mkdir " .. utils.getParentPath(end_file:gsub("/", "\\\\")))
+
+        os.execute("copy " .. start_file:gsub("/", "\\\\") .. " " .. end_file:gsub("/", "\\\\"))
+
+      end
+
+    end
 
   	-- make jar
   	local t = os.execute("jar -c -f lib/" .. mod_name .. ".jar -C " .. mod_name .. "/out .")
@@ -97,12 +120,14 @@ utils.deletedir("out")
 lfs.mkdir("out")
 
 -- command to run if need be
--- local t = os.execute("java --module-path lib;third_party -m " .. main_class)
+if main_class then
+  local t = os.execute("java --module-path lib;third_party -m " .. main_class)
+end
 
 local test_result = {}
 
 -- run tests
-for depth, module_names_in_depth in ipairs(depth_grouped_modules) do
+for depth, module_names_in_depth in pairs(depth_grouped_modules) do
 
   for _, mod_name in pairs(module_names_in_depth) do
 
@@ -110,11 +135,12 @@ for depth, module_names_in_depth in ipairs(depth_grouped_modules) do
 
     local test_files = {}
 
-    test_files = utils.get_file_list(directory .. "/" .. mod_name, test_files, true)
+    test_files = utils.get_file_list(directory .. "/" .. mod_name .. "/src", test_files)
+    test_files = utils.get_file_list(directory .. "/" .. mod_name .. "/test", test_files)
 
     -- get all test classes (with full path)
     test_classes = {}
-    test_classes = utils.get_file_list(directory .. "/" .. mod_name .. "/test", test_classes, true)
+    test_classes = utils.get_file_list(directory .. "/" .. mod_name .. "/test", test_classes)
 
     -- create to gloabl place for testing
     local test_compile_string = "javac --module-path lib;third_party -d out -classpath third_party;test_lib/junit-4.12.jar "
@@ -125,9 +151,36 @@ for depth, module_names_in_depth in ipairs(depth_grouped_modules) do
       test_compile_string = test_compile_string .. "--add-reads " .. dep_names .. "=ALL-UNNAMED --add-modules " .. dep_names .. " "
     end
 
+    -- create file with list of sources to get around cmd character limit
+    local sources_file = io.open("sources.txt", w)
     for index, file in pairs(test_files) do
 
-      test_compile_string = test_compile_string .. string.sub(file, 3) .. " "
+      -- check its a jar file
+      if utils.ends_with(file, ".java") then
+        io.write(string.sub(file, 3) .. " ")
+      end
+
+    end
+    io.close(test_compile_string .. " @sources.txt")
+      
+    -- compile
+    local t = os.execute(compile_string .. " @sources.txt")
+
+    --now copy over none java files
+    for not index, file in pairs(test_files) do
+
+
+      if not utils.ends_with(file, ".java") then
+
+        local start_file = file:sub(3)
+        local end_file = "out/" .. string.sub(file, string.len("/" .. directory .. "/" .. mod_name .. "/src/"))
+
+        -- mkdir just incase it doesnt exist
+        os.execute("mkdir " .. utils.getParentPath(end_file:gsub("/", "\\\\")))
+
+        os.execute("copy " .. start_file:gsub("/", "\\\\") .. " " .. end_file:gsub("/", "\\\\"))
+
+      end
 
     end
     
@@ -139,7 +192,7 @@ for depth, module_names_in_depth in ipairs(depth_grouped_modules) do
     -- run tests
     for k,v in pairs(test_classes) do
       local test_class = v:gsub(directory .. "/" .. mod_name .. "/test/", ""):gsub("/", "%."):gsub(".java", "")
-      local handle = io.popen("java -cp \"out;third_party;test_lib/hamcrest-2.2.jar;test_lib/junit-4.12.jar\" org.junit.runner.JUnitCore " .. test_class)
+      local handle = io.popen("java -cp \"out;third_party;test_lib/hamcrest-2.2.jar;test_lib/junit-4.12.jar\" -p third_party;lib org.junit.runner.JUnitCore " .. test_class)
       local result = handle:read("*a")
       handle:close()
       test_result[mod_name][test_class] = result
@@ -149,6 +202,8 @@ for depth, module_names_in_depth in ipairs(depth_grouped_modules) do
 
 end
 
+os.remove("sources.txt")
+
 local test_output = io.open("test_outputs/" .. date_time_index .. "_test_output.html", "w")
 io.output(test_output)
 
@@ -156,11 +211,37 @@ io.write("<h1>Test Results at " .. os.date("%Y/%m/%d %X") .. "</h1>")
 
 for mod_name, class_tests in pairs(test_result) do
 
-  io.write("<details><summary>" .. mod_name .. "</summary>")
+  local color = "green"
+  local empty = true
+
+  -- check if it has_passed
+  for class_name, test_result_string in pairs(class_tests) do
+
+    if test_result_string ~= "" then
+      empty = false
+    end
+
+    if string.find(test_result_string, "FAILURES!!!") then
+      color = "red"
+      break
+    end
+
+  end
+
+  if empty then
+    color = "yellow"
+  end
+
+  io.write("<details><summary><span style=\"color:" .. color .. "\">" .. mod_name .. "</span></summary>")
 
   for class_name, test_result in pairs(class_tests) do
+
+    local_color = "green"
+    if string.find(test_result, "FAILURES!!!") then
+      local_color = "red"
+    end
     
-    io.write("<h3>" .. class_name .. "</h3>")
+    io.write("<h3><span style=\"color:" .. local_color .. "\">" .. class_name .. "</span></h3>")
 
     io.write("<p>" .. test_result .. "</p>")
 

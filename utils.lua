@@ -26,23 +26,19 @@ function utils.deletedir(dir)
 end
 
 function utils.add_to_file_list(dir, file, files)
-  if lfs.attributes(dir .. "/" .. file,"mode") == "file" and utils.ends_with(file, ".java") then 
-    files[#file + 1] = dir .. "/" .. file
+  if lfs.attributes(dir .. "/" .. file,"mode") == "file" and not utils.ends_with(file, ".iml") and not utils.starts_with(file, ".") then 
+    files[#files + 1] = dir .. "/" .. file
   elseif lfs.attributes(dir .. "/" .. file,"mode") == "directory" then 
     files = utils.get_file_list(dir .. "/" .. file, files)
   end
   return files
 end 
 
-function utils.get_file_list(dir, files, test_run) 
+function utils.get_file_list(dir, files) 
 
 	for file in lfs.dir(dir) do
-	    if file ~= "." and file ~= ".." and file ~= "out" and file ~= ".idea" then 
-        if test_run then
-          files = utils.add_to_file_list(dir, file, files)
-        elseif file ~= "test" then
-          files = utils.add_to_file_list(dir, file, files)
-        end
+    if file ~= ".hg" and file ~= "." and file ~= ".." and file ~= "out" and file ~= ".idea" then 
+      files = utils.add_to_file_list(dir, file, files)
 		end	
 	end
 
@@ -105,12 +101,12 @@ end
 -- get module names
 function utils.dependant_module_names(lines)
   local module_names = {}
-  local module_reader = "module%-name=\".-\" />"
+  local module_reader = "module%-name=\".-\""
   for _,v in pairs(lines) do
     if string.find(v, "module%-name") then
       local part = string.sub(v, string.find(v, module_reader))
       local remove_front = string.gsub(part, "module%-name=\"", "")
-      local remove_end = string.gsub(remove_front, "\" />", "")
+      local remove_end = string.gsub(remove_front, "\"", "")
       module_names[#module_names + 1] = remove_end
     end
   end
@@ -154,7 +150,7 @@ function utils.calc_depth(modules, module_name, depth)
   for i,dep_name in ipairs(mod_deps) do
     local new_depth = utils.calc_depth(modules, dep_name, depth)
     if new_depth > depth then
-      dpeth = new_depth
+      depth = new_depth
     end
   end
 
@@ -168,6 +164,19 @@ function utils.reverse_list(list)
     rev[#rev+1] = list[i]
   end
   return rev
+end
+
+function utils.get_parent_path(path) 
+  local function getParentPath(_path)
+    pattern1 = "^(.+)//"
+    pattern2 = "^(.+)\\"
+
+    if (string.match(path,pattern1) == nil) then
+        return string.match(path,pattern2)
+    else
+        return string.match(path,pattern1)
+    end
+  end
 end
 
 return utils
