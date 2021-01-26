@@ -185,9 +185,6 @@ for depth, module_names_in_depth in pairs(depth_grouped_modules) do
       end
 
     end
-    
-    -- compile test
-    local t = os.execute(test_compile_string)
 
     test_result[mod_name] = {}
 
@@ -274,14 +271,6 @@ local begining = [[
 
 </head>
 
-<script>
-function RunExe(){
-    var shell = new ActiveXObject("WScript.Shell");
-    var path = '"file:///run.bat"';
-    shell.run(path,1,false);
-}
-</script>
-
 <body id="index" class="home">
 
 <header id="banner" class="body">
@@ -299,7 +288,6 @@ function RunExe(){
   <article>
 
     <hgroup>
-      <input id="clickMe" type="button" value="clickme" onclick="RunExe()" />
     </hgroup>
 
   </article>
