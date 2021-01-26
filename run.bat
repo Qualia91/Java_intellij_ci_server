@@ -6,8 +6,10 @@ hg clone D:/Software/Programming/projects/Java/commandLineBuildTest/com.hello_cl
 
 pushd %~dp0
 
-lua java_build_tool.lua "com.hello_client/com.hello_client.HelloWorldClient"
+lua java_build_tool.lua "com.hello"
 
 rmdir third_party /q /s
 rmdir com.hello /q /s
 rmdir com.hello_client /q /s
+
+pause
